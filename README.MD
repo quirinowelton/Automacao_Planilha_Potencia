@@ -76,5 +76,7 @@ Este projeto está licenciado sob a [MIT License](LICENSE).
 
 ## Contato
 
-Para mais informações ou dúvidas, entre em contato com: **weltonquirino@gmail.com**
+Para mais informações ou dúvidas, entre em contato com: **wpquirino@gmail.com**
+Linkedin: www.linkedin.com/in/welton-quirino
+
 
