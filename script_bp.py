@@ -17,10 +17,10 @@ def get_excel_file_path():
             print("Erro: O arquivo deve ter a extensão '.xlsx' e deve existir. Tente novamente.")
 
 # Função genérica para limpeza de dataframes
-def clean_dataframe(df, status_col=None, status_value=None, designador_col='Designador'):
+def clean_dataframe(df, status_col=None, status_value=None, id_col='ID'):
     if status_col and status_value:
         df = df[df[status_col].str.strip() == status_value]
-    df = df.dropna(subset=[designador_col]).drop_duplicates(subset=[designador_col], keep='last').reset_index(drop=True)
+    df = df.dropna(subset=[id_col]).drop_duplicates(subset=[id_col], keep='last').reset_index(drop=True)
     return df
 
 # Função genérica para verificar colunas ausentes
@@ -31,7 +31,7 @@ def verificar_colunas(df, colunas):
     return df[colunas] if not colunas_ausentes else df
 
 # Função para merge dos dataframes
-def merge_dataframes(df1, df2, on_col='Designador'):
+def merge_dataframes(df1, df2, on_col='ID'):
     df2_reindexed = df2.set_index(on_col).reindex(df1[on_col]).reset_index()
     return pd.concat([df1.set_index(on_col), df2_reindexed.set_index(on_col)], axis=1).reset_index()
 
@@ -72,13 +72,13 @@ def main():
 
     # Limpeza dos DataFrames
     df1_limpo = clean_dataframe(df1, status_col='Status', status_value='Concluída')
-    df2.rename(columns={'DESIGNADOR': 'Designador'}, inplace=True)
+    df2.rename(columns={'ID': 'ID'}, inplace=True)
     df2_limpo = clean_dataframe(df2)
 
     # Colunas a serem verificadas
-    cols_df1 = ['Designador', 'Razão completamento 1', 'Razão completamento 2', 
+    cols_df1 = ['ID', 'Razão completamento 1', 'Razão completamento 2', 
              'Razão completamento 3', 'Zona de Trabalho']
-    cols_df2 = ['Designador', 'OLT', 'ONT']
+    cols_df2 = ['ID', 'FREQUENCIA1', 'FREQUENCIA2']
 
     # Selecionando colunas
     df1_selected = verificar_colunas(df1_limpo, cols_df1)
@@ -87,23 +87,23 @@ def main():
     # Merge dos dataframes
     df_merged = merge_dataframes(df1_selected, df2_selected)
 
-    # Conversão de valores da coluna ONT e OLT para numérico
-    df_merged[['ONT', 'OLT']] = df_merged[['ONT', 'OLT']].apply(pd.to_numeric, errors='coerce')
+    # Conversão de valores da coluna FREQUENCIA2 e FREQEUNCIA1 para numérico
+    df_merged[['FREQUENCIA2', 'FREQUENCIA1']] = df_merged[['FREQUENCIA2', 'FREQUENCIA1']].apply(pd.to_numeric, errors='coerce')
 
-    # Ajuste de valores de ONT e criação de 'ONT REAL'
-    df_merged['ONT'] = df_merged['ONT'].apply(lambda valor: np.ceil(valor / 1000 * 10) / 10 if valor < -100 else np.ceil(valor * 10) / 10)
-    df_merged['ONT REAL'] = df_merged[['OLT', 'ONT']].max(axis=1)
+    # Ajuste de valores de FREQUENCIA2 e criação de 'FREQUENCIA REAL'
+    df_merged['FREQUENCIA1'] = df_merged['FREQUENCIA2'].apply(lambda valor: np.ceil(valor / 1000 * 10) / 10 if valor < -100 else np.ceil(valor * 10) / 10)
+    df_merged['FREQUENCIA REAL'] = df_merged[['FREQUENCIA1', 'FREQUENCIA2']].max(axis=1)
 
     # Aplicando a função de situação de potência
-    df_merged['SITUACAO'] = df_merged['ONT REAL'].apply(situacao_potencia)
+    df_merged['SITUACAO'] = df_merged['FREQUENCIA REAL'].apply(situacao_potencia)
     df_merged['DATA'] = (pd.Timestamp.now() - pd.Timedelta(days=1)).strftime('%d/%m/%Y')
 
     # Ajuste da zona de trabalho
-    df_merged['Zona de Trabalho'] = df_merged['Zona de Trabalho'].apply(lambda local: "ONDACOM" if local in ["OndaSerra Zona 1", "OndaSerra Zona 2"] else "HALEN")
+    df_merged['Zona de Trabalho'] = df_merged['Zona de Trabalho'].apply(lambda local: "EMPRESA1" if local in ["Zona 1", "Zona 2"] else "EMPRESA2")
 
     # Preparando o DataFrame final
-    df_final = df_merged[['Designador', 'DATA', 'Razão completamento 1', 'Razão completamento 2', 
-                      'Razão completamento 3', 'Zona de Trabalho', 'OLT', 'ONT', 'ONT REAL', 'SITUACAO']]
+    df_final = df_merged[['ID', 'DATA', 'Razão completamento 1', 'Razão completamento 2', 
+                      'Razão completamento 3', 'Zona de Trabalho', 'FREQUENCIA1', 'FREQUENCIA2', 'FREQUENCIA REAL', 'SITUACAO']]
 
     # Salvando em Excel
     print("Criando o arquivo tratado...")
