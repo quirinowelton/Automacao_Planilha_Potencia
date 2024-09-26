@@ -47,6 +47,17 @@ Limpa o dataframe removendo duplicatas e valores nulos, e opcionalmente filtra p
   - `status_value (str, opcional)`: Valor de status a ser filtrado.
   - `designador_col (str, padrão='Designador')`: Coluna para remoção de duplicatas e valores nulos.
 
+```python
+import pandas as pd
+
+def clean_dataframe(df, status_col=None, status_value=None, designador_col='Designador'):
+    df = df.drop_duplicates(subset=[designador_col])
+    df = df.dropna()
+    if status_col and status_value:
+        df = df[df[status_col] == status_value]
+    return df
+```
+
 ### `merge_dataframes(df1, df2, on_col='Designador')`
 Mescla dois dataframes com base em uma coluna comum, reindexando e concatenando os dados.
 
@@ -55,6 +66,12 @@ Mescla dois dataframes com base em uma coluna comum, reindexando e concatenando 
   - `df2 (pd.DataFrame)`: Segundo dataframe.
   - `on_col (str, padrão='Designador')`: Coluna chave para o merge.
 
+```python
+def merge_dataframes(df1, df2, on_col='Designador'):
+    merged_df = pd.merge(df1, df2, on=on_col)
+    return merged_df
+```
+
 ### `situacao_potencia(potencia)`
 Classifica a situação da potência de acordo com os valores de ONT.
 
@@ -62,6 +79,18 @@ Classifica a situação da potência de acordo com os valores de ONT.
   - `potencia (float)`: Valor da potência a ser classificada.
   
 - **Retorna:** Uma string indicando a situação ("FALHA DE LEITURA", "ATENUADO", "FORA DO PADRÃO", "OK").
+
+```python
+def situacao_potencia(potencia):
+    if potencia is None:
+        return "FALHA DE LEITURA"
+    elif potencia < 5:
+        return "ATENUADO"
+    elif 5 <= potencia <= 10:
+        return "FORA DO PADRÃO"
+    else:
+        return "OK"
+```
 
 ## Estrutura de Saída
 
@@ -77,6 +106,5 @@ Este projeto está licenciado sob a [MIT License](LICENSE).
 ## Contato
 
 Para mais informações ou dúvidas, entre em contato com: **wpquirino@gmail.com**
-Linkedin: www.linkedin.com/in/welton-quirino
 
 
