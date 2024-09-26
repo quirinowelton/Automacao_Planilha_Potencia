@@ -2,7 +2,6 @@
 
 Este projeto fornece um script em Python para automatizar o tratamento de planilhas de baixa frequência de sinal, mesclando diferentes planilhas, limpando os dados e classificando a potência com base em regras específicas.
 
-**Os dados utilizados são fictícios
 
 ## Funcionalidades
 
