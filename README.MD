@@ -64,10 +64,10 @@ def merge_dataframes(df1, df2, on_col='ID'):
 
 ### `situacao_potencia(potencia)`
 Classifica a situação da potência de acordo com os valores de FREQUENCIA2.
-É considerado Falha de Leitura quando os dados da FREQUENCIA2 está vazio;
-É considerado Atenuado quando a FREQUENCIA2 é menor que -15;
-É considerado Fora do Padrão quando a potencia é maior que zero;
-É considerado Ok quando o valor esta entre -15 e 0.
+- É considerado Falha de Leitura quando os dados da FREQUENCIA2 está vazio;
+- É considerado Atenuado quando a FREQUENCIA2 é menor que -15;
+- É considerado Fora do Padrão quando a potencia é maior que zero;
+- É considerado Ok quando o valor esta entre -15 e 0.
   
 - **Retorna:** Uma string indicando a situação ("FALHA DE LEITURA", "ATENUADO", "FORA DO PADRÃO", "OK").
 
