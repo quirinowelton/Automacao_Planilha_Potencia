@@ -1,13 +1,15 @@
-# Automatizando Planilhas de Baixa Potência
+# Automatizando Planilhas de Baixa Frequência
 
-Este projeto fornece um script em Python para automatizar o tratamento de planilhas de baixa potência de ONT e OLT, mesclando diferentes planilhas, limpando os dados e classificando a potência com base em regras específicas.
+Este projeto fornece um script em Python para automatizar o tratamento de planilhas de baixa frequência de sinal, mesclando diferentes planilhas, limpando os dados e classificando a potência com base em regras específicas.
+
+**Os dados utilizados são fictícios
 
 ## Funcionalidades
 
 - **Limpeza de Dados:** Remove duplicatas, filtra registros com base no status e limpa valores nulos.
 - **Verificação de Colunas:** Garante que todas as colunas necessárias estejam presentes.
-- **Merge de Planilhas:** Mescla os dataframes com base na coluna 'Designador'.
-- **Classificação de Potência:** Classifica a situação da potência conforme os valores de ONT e OLT.
+- **Merge de Planilhas:** Mescla os dataframes com base na coluna 'ID'.
+- **Classificação de Potência:** Classifica a situação da potência conforme os valores de FREQUENCIA1 e FREQUENCIA2.
 - **Criação de Arquivos de Saída:** Gera dois arquivos Excel: um acumulado e outro individual.
 
 ## Ferramentas Utilizadas
@@ -38,55 +40,45 @@ Você será solicitado a fornecer o caminho do arquivo Excel que deseja processa
 
 ## Funcionalidades Principais
 
-### `clean_dataframe(df, status_col=None, status_value=None, designador_col='Designador')`
+### `clean_dataframe(df, status_col=None, status_value=None, id_col='ID')`
 Limpa o dataframe removendo duplicatas e valores nulos, e opcionalmente filtra por uma coluna de status.
-
-- **Parâmetros:**
-  - `df (pd.DataFrame)`: O dataframe de entrada.
-  - `status_col (str, opcional)`: Coluna de status para filtragem.
-  - `status_value (str, opcional)`: Valor de status a ser filtrado.
-  - `designador_col (str, padrão='Designador')`: Coluna para remoção de duplicatas e valores nulos.
 
 ```python
 import pandas as pd
 
-def clean_dataframe(df, status_col=None, status_value=None, designador_col='Designador'):
-    df = df.drop_duplicates(subset=[designador_col])
+def clean_dataframe(df, status_col=None, status_value=None, ID_col='ID'):
+    df = df.drop_duplicates(subset=[id_col])
     df = df.dropna()
     if status_col and status_value:
         df = df[df[status_col] == status_value]
     return df
 ```
 
-### `merge_dataframes(df1, df2, on_col='Designador')`
+### `merge_dataframes(df1, df2, on_col='ID')`
 Mescla dois dataframes com base em uma coluna comum, reindexando e concatenando os dados.
 
-- **Parâmetros:**
-  - `df1 (pd.DataFrame)`: Primeiro dataframe.
-  - `df2 (pd.DataFrame)`: Segundo dataframe.
-  - `on_col (str, padrão='Designador')`: Coluna chave para o merge.
-
 ```python
-def merge_dataframes(df1, df2, on_col='Designador'):
+def merge_dataframes(df1, df2, on_col='ID'):
     merged_df = pd.merge(df1, df2, on=on_col)
     return merged_df
 ```
 
 ### `situacao_potencia(potencia)`
-Classifica a situação da potência de acordo com os valores de ONT.
-
-- **Parâmetros:**
-  - `potencia (float)`: Valor da potência a ser classificada.
+Classifica a situação da potência de acordo com os valores de FREQUENCIA2.
+É considerado Falha de Leitura quando os dados da FREQUENCIA2 está vazio;
+É considerado Atenuado quando a FREQUENCIA2 é menor que -15;
+É considerado Fora do Padrão quando a potencia é maior que zero;
+É considerado Ok quando o valor esta entre -15 e 0.
   
 - **Retorna:** Uma string indicando a situação ("FALHA DE LEITURA", "ATENUADO", "FORA DO PADRÃO", "OK").
 
 ```python
 def situacao_potencia(potencia):
-    if potencia is None:
+    if pd.isna(potencia):
         return "FALHA DE LEITURA"
-    elif potencia < 5:
+    elif potencia < -15:
         return "ATENUADO"
-    elif 5 <= potencia <= 10:
+    elif potencia >= 0:
         return "FORA DO PADRÃO"
     else:
         return "OK"
@@ -96,7 +88,7 @@ def situacao_potencia(potencia):
 
 O script gera dois arquivos Excel:
 
-- Um arquivo acumulado chamado `Baixa_potencia_geral.xlsx`.
+- Um arquivo acumulado chamado `Baixa_frequencia_geral.xlsx`.
 - Um arquivo individual salvo no diretório `C:/python/diario/` com o nome fornecido pelo usuário.
 
 ## Licença
