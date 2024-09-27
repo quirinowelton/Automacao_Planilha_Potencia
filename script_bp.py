@@ -1,3 +1,4 @@
+
 import pandas as pd
 import numpy as np
 import os
@@ -87,19 +88,19 @@ def main():
     # Merge dos dataframes
     df_merged = merge_dataframes(df1_selected, df2_selected)
 
-    # Conversão de valores da coluna FREQUENCIA2 e FREQEUNCIA1 para numérico
+    # Conversão de valores da coluna ONT e OLT para numérico
     df_merged[['FREQUENCIA2', 'FREQUENCIA1']] = df_merged[['FREQUENCIA2', 'FREQUENCIA1']].apply(pd.to_numeric, errors='coerce')
-
-    # Ajuste de valores de FREQUENCIA2 e criação de 'FREQUENCIA REAL'
+    # Ajuste de valores de ONT e criação de 'ONT REAL'
     df_merged['FREQUENCIA1'] = df_merged['FREQUENCIA2'].apply(lambda valor: np.ceil(valor / 1000 * 10) / 10 if valor < -100 else np.ceil(valor * 10) / 10)
-    df_merged['FREQUENCIA REAL'] = df_merged[['FREQUENCIA1', 'FREQUENCIA2']].max(axis=1)
+    df_merged['FREQUENCIA REAL'] = df_merged[['FREQUENCIA1', 'FREQUENCIA2']].max(axis=1) 
+
 
     # Aplicando a função de situação de potência
     df_merged['SITUACAO'] = df_merged['FREQUENCIA REAL'].apply(situacao_potencia)
     df_merged['DATA'] = (pd.Timestamp.now() - pd.Timedelta(days=1)).strftime('%d/%m/%Y')
 
     # Ajuste da zona de trabalho
-    df_merged['Zona de Trabalho'] = df_merged['Zona de Trabalho'].apply(lambda local: "EMPRESA1" if local in ["Zona 1", "Zona 2"] else "EMPRESA2")
+    df_merged['Zona de Trabalho'] = df_merged['Zona de Trabalho'].apply(lambda local: "EMPRESA1" if local in ["EMPRESA1"] else "EMPRESA2")
 
     # Preparando o DataFrame final
     df_final = df_merged[['ID', 'DATA', 'Razão completamento 1', 'Razão completamento 2', 
